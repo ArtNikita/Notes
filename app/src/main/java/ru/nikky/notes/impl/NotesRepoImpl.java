@@ -1,22 +1,24 @@
 package ru.nikky.notes.impl;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 import ru.nikky.notes.domain.NoteEntity;
 import ru.nikky.notes.domain.NotesRepo;
 
 public class NotesRepoImpl implements NotesRepo {
 
-    private ArrayList<NoteEntity> notesArrayList;
+    private LinkedList<NoteEntity> notesArrayList;
 
     private int noteId;
     public NotesRepoImpl() {
-        notesArrayList = new ArrayList<>();
+        notesArrayList = new LinkedList<>();
         noteId = 0;
     }
 
     public NotesRepoImpl(ArrayList<NoteEntity> notesArrayList) {
-        this.notesArrayList = new ArrayList<>(notesArrayList);
+        this.notesArrayList = new LinkedList<>(notesArrayList);
         noteId = getNotUsedId(notesArrayList);
     }
 
@@ -24,7 +26,7 @@ public class NotesRepoImpl implements NotesRepo {
     public void add(String title, String detail) {
         NoteEntity newNote = new NoteEntity(title, detail);
         newNote.setId(noteId++);
-        notesArrayList.add(newNote);
+        notesArrayList.add(0, newNote);
     }
 
     @Override
@@ -64,7 +66,7 @@ public class NotesRepoImpl implements NotesRepo {
         return resultId + 1;
     }
 
-    public ArrayList<NoteEntity> getNotes() {
+    public List<NoteEntity> getNotes() {
         return new ArrayList<>(notesArrayList);
     }
 }

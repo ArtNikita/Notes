@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:background="@color/yellow"
         app:title="@string/app_name"
-        app:titleTextColor="@color/white" />
+        app:titleTextColor="@color/pink" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/notes_recycler_view"

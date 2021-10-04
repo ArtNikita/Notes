@@ -3,6 +3,7 @@ package ru.nikky.notes.ui;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,7 +14,7 @@ public class NotesAdapter extends RecyclerView.Adapter<NoteVH>{
     private ArrayList<NoteEntity> notesArrayList;
     private OnItemClickListener clickListener;
 
-    public void setData(ArrayList<NoteEntity> notesArrayList){
+    public void setData(List<NoteEntity> notesArrayList){
         this.notesArrayList = new ArrayList<>(notesArrayList);
         notifyDataSetChanged();
     }

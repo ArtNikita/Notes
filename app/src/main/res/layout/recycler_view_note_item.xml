@@ -23,7 +23,7 @@
             android:layout_margin="@dimen/small_margin_and_padding"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textColor="@color/white"
+            android:textColor="@color/pink"
             android:textSize="@dimen/title_text_size" />
 
         <TextView
@@ -33,7 +33,7 @@
             android:layout_margin="@dimen/small_margin_and_padding"
             android:ellipsize="end"
             android:maxLines="2"
-            android:textColor="@color/white"
+            android:textColor="@color/pink"
             android:textSize="@dimen/detail_text_size" />
     </androidx.appcompat.widget.LinearLayoutCompat>
 

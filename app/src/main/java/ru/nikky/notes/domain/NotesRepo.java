@@ -1,10 +1,10 @@
 package ru.nikky.notes.domain;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public interface NotesRepo {
 
-    ArrayList<NoteEntity> getNotes();
+    List<NoteEntity> getNotes();
 
     void add(String title, String detail);
 
