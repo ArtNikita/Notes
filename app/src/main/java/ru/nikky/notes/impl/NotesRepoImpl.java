@@ -46,6 +46,8 @@ public class NotesRepoImpl implements NotesRepo {
         NoteEntity targetNote = get(id);
         targetNote.setTitle(newTitle);
         targetNote.setDetail(newDetail);
+        delete(targetNote.getId());
+        notesArrayList.add(0, targetNote);
     }
 
     @Override

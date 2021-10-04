@@ -1,5 +1,7 @@
 package ru.nikky.notes.ui;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -13,9 +15,9 @@ import ru.nikky.notes.impl.NotesRepoImpl;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
+
+import java.util.ArrayList;
 
 public class NotesListActivity extends AppCompatActivity {
 
@@ -25,13 +27,18 @@ public class NotesListActivity extends AppCompatActivity {
 
     private NotesRepo notesRepo;
 
+    private ActivityResultLauncher<Intent> editNoteActivityLauncher;
+
+    private final static String KEY_NOTES_ARRAY = "KEY_NOTES_ARRAY";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notes_list);
 
         initToolBar();
-        initNotesRepo();
+        initNotesRepo(savedInstanceState);
+        initActivityResultLaunchers();
         initRecyclerView();
     }
 
@@ -47,6 +54,12 @@ public class NotesListActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(KEY_NOTES_ARRAY, new ArrayList<>(notesRepo.getNotes()));
+    }
+
+    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.add_note_menu) {
             addNoteMenuItemPressed();
@@ -55,40 +68,53 @@ public class NotesListActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void initActivityResultLaunchers() {
+        editNoteActivityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == RESULT_OK) {
+                Intent returnedIntent = result.getData();
+                if (returnedIntent != null) {
+                    NoteEntity returnedNoteEntity = returnedIntent.getParcelableExtra(EditNoteActivity.KEY_NOTE_ENTITY);
+                    if (returnedNoteEntity.getId() == NoteEntity.NEW_NOTE_ENTITY_ID) {
+                        processNewEditedEntity(returnedNoteEntity);
+                    } else {
+                        processEditedEntity(returnedNoteEntity);
+                    }
+                }
+            }
+        });
+    }
+
+    private void processNewEditedEntity(NoteEntity noteEntity) {
+        if (noteEntity.isEmpty()) return;
+        notesRepo.add(noteEntity.getTitle(), noteEntity.getDetail());
+        adapter.setData(notesRepo.getNotes());
+    }
+
+    private void processEditedEntity(NoteEntity noteEntity) {
+        if (noteEntity.isEmpty()) {
+            notesRepo.delete(noteEntity.getId());
+        } else {
+            notesRepo.update(noteEntity.getId(), noteEntity.getTitle(), noteEntity.getDetail());
+        }
+        adapter.setData(notesRepo.getNotes());
+    }
+
     private void addNoteMenuItemPressed() {
-        openEditNoteActivity();
+        openEditNoteActivity(null);
     }
 
-    private void openEditNoteActivity() {
+    private void openEditNoteActivity(NoteEntity noteEntity) {
         Intent editNoteActivityIntent = new Intent(this, EditNoteActivity.class);
-        startActivity(editNoteActivityIntent);
+        editNoteActivityIntent.putExtra(EditNoteActivity.KEY_NOTE_ENTITY, noteEntity);
+        editNoteActivityLauncher.launch(editNoteActivityIntent);
     }
 
-    private void initNotesRepo() {
-        notesRepo = new NotesRepoImpl();
-        fillNotesRepoWithTestValues();
-    }
-
-    private void fillNotesRepoWithTestValues() {
-        notesRepo.add("1 Note", "Some text");
-        notesRepo.add("2 Note", "Some very long text ds;lfj sdfj dsfl;hjd dsf; dsf;j ;ds;fndsflkjdsl fds;lkjf ");
-        notesRepo.add("3 Note", "Some very long text ds;lfj sdfj dsfl;hjd dsf; dsf;j ;ds;fndsflkjdsl fds;lkjf ");
-        notesRepo.add("4 Note", "Some very long text ds;lfj sdfj dsfl;hjd dsf; dsf;j ;ds;fndsflkjdsl fds;lkjf ");
-        notesRepo.add("5 Note", "Some very long text ds;lfj sdfj dsfl;hjd dsf; dsf;j ;ds;fndsflkjdsl fds;lkjf ");
-        notesRepo.add("6 Note", "Some very long text ds;lfj sdfj dsfl;hjd dsf; dsf;j ;ds;fndsflkjdsl fds;lkjf ");
-        notesRepo.add("7 Note", "Some very long text ds;lfj sdfj dsfl;hjd dsf; dsf;j ;ds;fndsflkjdsl fds;lkjf ");
-        notesRepo.add("8 Note", "Some very long text ds;lfj sdfj dsfl;hjd dsf; dsf;j ;ds;fndsflkjdsl fds;lkjf ");
-        notesRepo.add("9 Note", "Some very long text ds;lfj sdfj dsfl;hjd dsf; dsf;j ;ds;fndsflkjdsl fds;lkjf ");
-        notesRepo.add("11 Note", "Some very long text ds;lfj sdfj dsfl;hjd dsf; dsf;j ;ds;fndsflkjdsl fds;lkjf ");
-        notesRepo.add("12 Note", "Some very long text ds;lfj sdfj dsfl;hjd dsf; dsf;j ;ds;fndsflkjdsl fds;lkjf ");
-        notesRepo.add("13 Note", "Some very long text ds;lfj sdfj dsfl;hjd dsf; dsf;j ;ds;fndsflkjdsl fds;lkjf ");
-        notesRepo.add("14 Note", "Some very long text ds;lfj sdfj dsfl;hjd dsf; dsf;j ;ds;fndsflkjdsl fds;lkjf ");
-        notesRepo.add("15 Note", "Some very long text ds;lfj sdfj dsfl;hjd dsf; dsf;j ;ds;fndsflkjdsl fds;lkjf ");
-        notesRepo.add("16 Note", "Some very long text ds;lfj sdfj dsfl;hjd dsf; dsf;j ;ds;fndsflkjdsl fds;lkjf ");
-        notesRepo.add("17 Note", "Some very long text ds;lfj sdfj dsfl;hjd dsf; dsf;j ;ds;fndsflkjdsl fds;lkjf ");
-        notesRepo.add("18 Note", "Some very long text ds;lfj sdfj dsfl;hjd dsf; dsf;j ;ds;fndsflkjdsl fds;lkjf ");
-        notesRepo.add("19 Note", "Some very long text ds;lfj sdfj dsfl;hjd dsf; dsf;j ;ds;fndsflkjdsl fds;lkjf ");
-        notesRepo.add("20 Note", "Some very long text ds;lfj sdfj dsfl;hjd dsf; dsf;j ;ds;fndsflkjdsl fds;lkjf ");
+    private void initNotesRepo(Bundle savedInstanceState) {
+        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_NOTES_ARRAY)){
+            notesRepo = new NotesRepoImpl((ArrayList<NoteEntity>) savedInstanceState.get(KEY_NOTES_ARRAY));
+        } else {
+            notesRepo = new NotesRepoImpl();
+        }
     }
 
     private void initRecyclerView() {
@@ -101,6 +127,6 @@ public class NotesListActivity extends AppCompatActivity {
     }
 
     private void onItemClick(NoteEntity noteEntity) {
-        openEditNoteActivity();
+        openEditNoteActivity(noteEntity);
     }
 }
