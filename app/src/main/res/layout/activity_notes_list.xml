@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/pink"
     android:orientation="vertical"
     tools:context=".ui.NotesListActivity">
 
@@ -11,9 +12,9 @@
         android:id="@+id/notes_list_activity_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/yellow"
+        android:background="@color/pink"
         app:title="@string/app_name"
-        app:titleTextColor="@color/pink" />
+        app:titleTextColor="@color/yellow" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/notes_recycler_view"
