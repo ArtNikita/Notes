@@ -3,4 +3,5 @@
     <string name="add_note_menu_title">Add note</string>
     <string name="title_edit_text_hint">Title</string>
     <string name="detail_edit_text_hint">Detail</string>
+    <string name="save_note_button_text">Save</string>
 </resources>

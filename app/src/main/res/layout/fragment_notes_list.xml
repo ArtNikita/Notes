@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/pink"
     android:orientation="vertical"
-    tools:context=".ui.NotesListActivity">
+    tools:context=".ui.NotesListFragment">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/notes_list_activity_toolbar"
