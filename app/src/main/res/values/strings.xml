@@ -1,7 +1,10 @@
 <resources>
     <string name="app_name">Notes</string>
-    <string name="add_note_menu_title">Add note</string>
+    <string name="settings_menu_title">Settings</string>
     <string name="title_edit_text_hint">Title</string>
     <string name="detail_edit_text_hint">Detail</string>
     <string name="save_note_button_text">Save</string>
+    <string name="about_menu_title">About</string>
+    <string name="fragment_settings_title_text_view">Settings</string>
+    <string name="fragment_about_title_text_view">About</string>
 </resources>
