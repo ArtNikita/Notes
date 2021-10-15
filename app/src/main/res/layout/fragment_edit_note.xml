@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/pink"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/title_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/small_margin_and_padding"
+        android:background="@android:color/transparent"
+        android:hint="@string/title_edit_text_hint"
+        android:textColor="@color/yellow"
+        android:textSize="@dimen/title_text_size" />
+
+    <EditText
+        android:id="@+id/detail_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/small_margin_and_padding"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:gravity="start"
+        android:hint="@string/detail_edit_text_hint"
+        android:textColor="@color/yellow"
+        android:textSize="@dimen/detail_text_size" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/save_note_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/small_margin_and_padding"
+        android:backgroundTint="@color/yellow"
+        android:text="@string/save_note_button_text"
+        android:textAllCaps="false"
+        android:textColor="@color/pink" />
+
+</androidx.appcompat.widget.LinearLayoutCompat>
