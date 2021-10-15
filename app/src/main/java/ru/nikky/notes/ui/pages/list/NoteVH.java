@@ -1,15 +1,15 @@
-package ru.nikky.notes.ui;
+package ru.nikky.notes.ui.pages.list;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import ru.nikky.notes.R;
 import ru.nikky.notes.domain.NoteEntity;
+import ru.nikky.notes.ui.pages.list.NotesAdapter;
 
 public class NoteVH extends RecyclerView.ViewHolder {
     private final TextView titleTextView = itemView.findViewById(R.id.title_text_view);
@@ -19,12 +19,9 @@ public class NoteVH extends RecyclerView.ViewHolder {
     public NoteVH(@NonNull ViewGroup parent, NotesAdapter.OnItemClickListener listener) {
         super(LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_view_note_item, parent, false));
         itemView.setOnClickListener(v -> listener.onItemClick(note));
-        itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                listener.onItemLongClick(note, view);
-                return true;
-            }
+        itemView.setOnLongClickListener(view -> {
+            listener.onItemLongClick(note, view);
+            return true;
         });
     }
 

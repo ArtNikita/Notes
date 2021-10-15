@@ -1,4 +1,4 @@
-package ru.nikky.notes.ui;
+package ru.nikky.notes.ui.pages.about;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

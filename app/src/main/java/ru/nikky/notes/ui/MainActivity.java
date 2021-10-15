@@ -4,11 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.PopupMenu;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -18,6 +16,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import ru.nikky.notes.R;
 import ru.nikky.notes.domain.NoteEntity;
+import ru.nikky.notes.ui.pages.about.AboutFragment;
+import ru.nikky.notes.ui.pages.edit.EditNoteFragment;
+import ru.nikky.notes.ui.pages.list.NotesListFragment;
+import ru.nikky.notes.ui.pages.settings.SettingsFragment;
 
 public class MainActivity extends AppCompatActivity implements NotesListFragment.Contract, EditNoteFragment.Contract {
 

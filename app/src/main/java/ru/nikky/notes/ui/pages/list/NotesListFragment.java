@@ -1,4 +1,4 @@
-package ru.nikky.notes.ui;
+package ru.nikky.notes.ui.pages.list;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -145,7 +145,7 @@ public class NotesListFragment extends Fragment {
         adapter.setData(notesRepo.getNotes());
     }
 
-    NotesAdapter.OnItemClickListener listener = new NotesAdapter.OnItemClickListener() {
+    private final NotesAdapter.OnItemClickListener listener = new NotesAdapter.OnItemClickListener() {
         @Override
         public void onItemClick(NoteEntity noteEntity) {
             getContractActivity().noteItemPressed(noteEntity);

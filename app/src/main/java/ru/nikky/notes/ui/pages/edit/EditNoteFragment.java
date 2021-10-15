@@ -1,7 +1,6 @@
-package ru.nikky.notes.ui;
+package ru.nikky.notes.ui.pages.edit;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,9 +54,7 @@ public class EditNoteFragment extends Fragment {
     }
 
     private void setupListeners() {
-        saveButton.setOnClickListener(v -> {
-            getContractActivity().saveResult(getNote());
-        });
+        saveButton.setOnClickListener(v -> getContractActivity().saveResult(getNote()));
     }
 
     private NoteEntity getNote() {

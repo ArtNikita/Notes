@@ -1,4 +1,4 @@
-package ru.nikky.notes.ui;
+package ru.nikky.notes.ui.pages.list;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,7 +44,7 @@ public class NotesAdapter extends RecyclerView.Adapter<NoteVH>{
         clickListener = listener;
     }
 
-    interface OnItemClickListener{
+    public interface OnItemClickListener{
         void onItemClick(NoteEntity item);
         void onItemLongClick(NoteEntity item, View anchorView);
     }
