@@ -140,14 +140,22 @@ public class NotesListFragment extends Fragment {
         notesRecyclerView = view.findViewById(R.id.notes_recycler_view);
         notesRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new NotesAdapter();
-        adapter.setOnItemClickListener(this::onItemClick);
+        adapter.setOnItemClickListener(listener);
         notesRecyclerView.setAdapter(adapter);
         adapter.setData(notesRepo.getNotes());
     }
 
-    private void onItemClick(NoteEntity noteEntity) {
-        getContractActivity().noteItemPressed(noteEntity);
-    }
+    NotesAdapter.OnItemClickListener listener = new NotesAdapter.OnItemClickListener() {
+        @Override
+        public void onItemClick(NoteEntity noteEntity) {
+            getContractActivity().noteItemPressed(noteEntity);
+        }
+
+        @Override
+        public void onItemLongClick(NoteEntity noteEntity, View anchorView) {
+            getContractActivity().noteItemPressedLong(noteEntity, anchorView);
+        }
+    };
 
     private Contract getContractActivity() {
         return (Contract) getActivity();
@@ -158,5 +166,6 @@ public class NotesListFragment extends Fragment {
         void noteItemPressed(NoteEntity noteEntity);
         void settingsButtonPressed();
         void aboutButtonPressed();
+        void noteItemPressedLong(NoteEntity noteEntity, View anchorView);
     }
 }
