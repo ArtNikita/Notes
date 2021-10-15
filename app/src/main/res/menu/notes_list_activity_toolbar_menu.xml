@@ -2,8 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/add_note_menu"
-        android:title="@string/add_note_menu_title"
-        app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_baseline_add_24"/>
+        android:id="@+id/settings_menu"
+        android:title="@string/settings_menu_title"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/about_menu"
+        android:title="@string/about_menu_title"
+        app:showAsAction="never" />
 </menu>
