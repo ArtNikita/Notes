@@ -54,12 +54,16 @@ public class MainActivity extends AppCompatActivity implements NotesListFragment
         PopupMenu popupMenu = new PopupMenu(this, view);
         popupMenu.inflate(R.menu.notes_list_popup_menu);
         popupMenu.setOnMenuItemClickListener(menuItem -> {
-            noteEntity.setTitle("");
-            noteEntity.setDetail("");
             deleteNoteEntity(noteEntity);
             return true;
         });
         popupMenu.show();
+    }
+
+    private void deleteNoteEntity(NoteEntity noteEntity){
+        noteEntity.setTitle("");
+        noteEntity.setDetail("");
+        notifyNoteEntityChanged(noteEntity);
     }
 
     private void vibrate(){
@@ -106,12 +110,12 @@ public class MainActivity extends AppCompatActivity implements NotesListFragment
 
     @Override
     public void saveResult(NoteEntity noteEntity) {
-        deleteNoteEntity(noteEntity);
+        notifyNoteEntityChanged(noteEntity);
         closeEditNoteFragment();
         hideKeyboard();
     }
 
-    private void deleteNoteEntity(NoteEntity noteEntity){
+    private void notifyNoteEntityChanged(NoteEntity noteEntity){
         NotesListFragment notesListFragment = (NotesListFragment) getSupportFragmentManager().findFragmentById(R.id.notes_list_fragment_container);
         if (notesListFragment != null) notesListFragment.receiveNoteEntity(noteEntity);
     }
