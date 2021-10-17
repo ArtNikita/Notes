@@ -2,11 +2,15 @@ package ru.nikky.notes.ui;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.FrameLayout;
 import android.widget.PopupMenu;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
@@ -54,10 +58,21 @@ public class MainActivity extends AppCompatActivity implements NotesListFragment
         PopupMenu popupMenu = new PopupMenu(this, view);
         popupMenu.inflate(R.menu.notes_list_popup_menu);
         popupMenu.setOnMenuItemClickListener(menuItem -> {
+            NoteEntity justDeletedNoteEntity = new NoteEntity(noteEntity.getTitle(), noteEntity.getDetail());
             deleteNoteEntity(noteEntity);
+            notifyUserThatNoteWasDeleted(justDeletedNoteEntity);
             return true;
         });
         popupMenu.show();
+    }
+
+    private void notifyUserThatNoteWasDeleted(NoteEntity noteEntity) {
+        Snackbar.make(findViewById(R.id.add_note_floating_action_button), getString(R.string.note_was_deleted_snackbar_text), Snackbar.LENGTH_LONG)
+                .setAction(R.string.undo_snackbar_action_text, v -> notifyNoteEntityChanged(noteEntity))
+                .setBackgroundTint(getColor(R.color.yellow))
+                .setTextColor(getColor(R.color.pink))
+                .setActionTextColor(getColor(R.color.pink))
+                .show();
     }
 
     private void deleteNoteEntity(NoteEntity noteEntity){

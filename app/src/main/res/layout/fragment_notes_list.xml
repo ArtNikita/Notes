@@ -16,7 +16,7 @@
         app:title="@string/app_name"
         app:titleTextColor="@color/yellow" />
 
-    <FrameLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -36,5 +36,5 @@
             android:src="@drawable/ic_baseline_add"
             app:maxImageSize="@dimen/floating_button_max_image_size"
             app:tint="@color/pink" />
-    </FrameLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </androidx.appcompat.widget.LinearLayoutCompat>

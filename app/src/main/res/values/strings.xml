@@ -8,4 +8,6 @@
     <string name="fragment_settings_title_text_view">Settings</string>
     <string name="fragment_about_title_text_view">About</string>
     <string name="delete_note_menu_title">Delete</string>
+    <string name="note_was_deleted_snackbar_text">Note was deleted</string>
+    <string name="undo_snackbar_action_text">Undo</string>
 </resources>
