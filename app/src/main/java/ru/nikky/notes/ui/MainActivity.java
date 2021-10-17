@@ -88,30 +88,12 @@ public class MainActivity extends AppCompatActivity implements NotesListFragment
 
     @Override
     public void settingsButtonPressed() {
-        popNotEditNoteFragmentFromBackStack();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.edit_note_fragment_container, new SettingsFragment())
-                .addToBackStack(null)
-                .commit();
+        new SettingsFragment().show(getSupportFragmentManager(), null);
     }
 
     @Override
     public void aboutButtonPressed() {
-        popNotEditNoteFragmentFromBackStack();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.edit_note_fragment_container, new AboutFragment())
-                .addToBackStack(null)
-                .commit();
-    }
-
-    private void popNotEditNoteFragmentFromBackStack(){
-        List<Fragment> fragments = getSupportFragmentManager().getFragments();
-        if (!fragments.isEmpty() &&
-                !(fragments.get(fragments.size() - 1) instanceof EditNoteFragment)){
-            getSupportFragmentManager().popBackStack();
-        }
+        new AboutFragment().show(getSupportFragmentManager(), null);
     }
 
     private void launchEditNoteFragment(NoteEntity noteEntity) {
