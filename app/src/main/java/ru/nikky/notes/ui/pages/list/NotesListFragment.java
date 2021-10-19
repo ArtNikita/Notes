@@ -9,27 +9,31 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.util.ArrayList;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import ru.nikky.notes.App;
 import ru.nikky.notes.R;
 import ru.nikky.notes.databinding.FragmentNotesListBinding;
 import ru.nikky.notes.domain.NoteEntity;
 import ru.nikky.notes.domain.NotesRepo;
-import ru.nikky.notes.impl.NotesRepoImpl;
 
 public class NotesListFragment extends Fragment {
 
+    private final NotesAdapter.OnItemClickListener listener = new NotesAdapter.OnItemClickListener() {
+        @Override
+        public void onItemClick(NoteEntity noteEntity) {
+            getContractActivity().noteItemPressed(noteEntity);
+        }
+
+        @Override
+        public void onItemLongClick(NoteEntity noteEntity, View anchorView) {
+            getContractActivity().noteItemPressedLong(noteEntity, anchorView);
+        }
+    };
     private FragmentNotesListBinding binding;
-    private final static String KEY_NOTES_ARRAY = "KEY_NOTES_ARRAY";
     private NotesAdapter adapter;
     private NotesRepo notesRepo;
 
@@ -54,7 +58,7 @@ public class NotesListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         initToolBar();
         setupAddNoteFloatingActionButton();
-        initNotesRepo(savedInstanceState);
+        initNotesRepo();
         initRecyclerView();
     }
 
@@ -64,12 +68,6 @@ public class NotesListFragment extends Fragment {
 
     private void setupAddNoteFloatingActionButton() {
         binding.addNoteFloatingActionButton.setOnClickListener(v -> addNoteButtonPressed());
-    }
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(KEY_NOTES_ARRAY, new ArrayList<>(notesRepo.getNotes()));
     }
 
     @Override
@@ -126,12 +124,12 @@ public class NotesListFragment extends Fragment {
         getContractActivity().aboutButtonPressed();
     }
 
-    private void initNotesRepo(Bundle savedInstanceState) {
-        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_NOTES_ARRAY)) {
-            notesRepo = new NotesRepoImpl((ArrayList<NoteEntity>) savedInstanceState.get(KEY_NOTES_ARRAY));
-        } else {
-            notesRepo = new NotesRepoImpl();
-        }
+    private void initNotesRepo() {
+        notesRepo = getApp().getNotesRepo();
+    }
+
+    private App getApp() {
+        return (App) requireActivity().getApplication();
     }
 
     private void initRecyclerView() {
@@ -142,27 +140,19 @@ public class NotesListFragment extends Fragment {
         adapter.setData(notesRepo.getNotes());
     }
 
-    private final NotesAdapter.OnItemClickListener listener = new NotesAdapter.OnItemClickListener() {
-        @Override
-        public void onItemClick(NoteEntity noteEntity) {
-            getContractActivity().noteItemPressed(noteEntity);
-        }
-
-        @Override
-        public void onItemLongClick(NoteEntity noteEntity, View anchorView) {
-            getContractActivity().noteItemPressedLong(noteEntity, anchorView);
-        }
-    };
-
     private Contract getContractActivity() {
         return (Contract) getActivity();
     }
 
     public interface Contract {
         void addNoteButtonPressed();
+
         void noteItemPressed(NoteEntity noteEntity);
+
         void settingsButtonPressed();
+
         void aboutButtonPressed();
+
         void noteItemPressedLong(NoteEntity noteEntity, View anchorView);
     }
 }
