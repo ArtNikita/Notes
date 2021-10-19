@@ -18,6 +18,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import ru.nikky.notes.App;
 import ru.nikky.notes.R;
 import ru.nikky.notes.databinding.ActivityMainBinding;
 import ru.nikky.notes.domain.NoteEntity;
@@ -141,5 +142,15 @@ public class MainActivity extends AppCompatActivity implements NotesListFragment
             view = new View(this);
         }
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        saveNotesRepo();
+    }
+
+    private void saveNotesRepo() {
+        ((App) getApplication()).saveNotesRepo();
     }
 }
