@@ -10,11 +10,22 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import ru.nikky.notes.R;
+import ru.nikky.notes.databinding.FragmentSettingsBinding;
 
 public class SettingsFragment extends BottomSheetDialogFragment {
+
+    private FragmentSettingsBinding binding;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_settings, container, false);
+        binding = FragmentSettingsBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onDestroyView() {
+        binding = null;
+        super.onDestroyView();
     }
 }

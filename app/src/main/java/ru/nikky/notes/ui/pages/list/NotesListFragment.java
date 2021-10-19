@@ -21,16 +21,15 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import ru.nikky.notes.R;
+import ru.nikky.notes.databinding.FragmentNotesListBinding;
 import ru.nikky.notes.domain.NoteEntity;
 import ru.nikky.notes.domain.NotesRepo;
 import ru.nikky.notes.impl.NotesRepoImpl;
 
 public class NotesListFragment extends Fragment {
 
+    private FragmentNotesListBinding binding;
     private final static String KEY_NOTES_ARRAY = "KEY_NOTES_ARRAY";
-    private Toolbar toolbar;
-    private FloatingActionButton addNoteFloatingActionButton;
-    private RecyclerView notesRecyclerView;
     private NotesAdapter adapter;
     private NotesRepo notesRepo;
 
@@ -45,27 +44,26 @@ public class NotesListFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        binding = FragmentNotesListBinding.inflate(inflater, container, false);
         setHasOptionsMenu(true);
-        return inflater.inflate(R.layout.fragment_notes_list, container, false);
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        initToolBar(view);
-        setupAddNoteFloatingActionButton(view);
+        initToolBar();
+        setupAddNoteFloatingActionButton();
         initNotesRepo(savedInstanceState);
-        initRecyclerView(view);
+        initRecyclerView();
     }
 
-    private void initToolBar(View view) {
-        toolbar = view.findViewById(R.id.notes_list_activity_toolbar);
-        ((AppCompatActivity) requireActivity()).setSupportActionBar(toolbar);
+    private void initToolBar() {
+        ((AppCompatActivity) requireActivity()).setSupportActionBar(binding.notesListActivityToolbar);
     }
 
-    private void setupAddNoteFloatingActionButton(View view) {
-        addNoteFloatingActionButton = view.findViewById(R.id.add_note_floating_action_button);
-        addNoteFloatingActionButton.setOnClickListener(v -> addNoteButtonPressed());
+    private void setupAddNoteFloatingActionButton() {
+        binding.addNoteFloatingActionButton.setOnClickListener(v -> addNoteButtonPressed());
     }
 
     @Override
@@ -136,12 +134,11 @@ public class NotesListFragment extends Fragment {
         }
     }
 
-    private void initRecyclerView(View view) {
-        notesRecyclerView = view.findViewById(R.id.notes_recycler_view);
-        notesRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+    private void initRecyclerView() {
+        binding.notesRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new NotesAdapter();
         adapter.setOnItemClickListener(listener);
-        notesRecyclerView.setAdapter(adapter);
+        binding.notesRecyclerView.setAdapter(adapter);
         adapter.setData(notesRepo.getNotes());
     }
 
