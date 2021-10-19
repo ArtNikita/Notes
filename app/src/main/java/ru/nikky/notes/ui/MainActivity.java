@@ -62,11 +62,21 @@ public class MainActivity extends AppCompatActivity implements NotesListFragment
         popupMenu.inflate(R.menu.notes_list_popup_menu);
         popupMenu.setOnMenuItemClickListener(menuItem -> {
             NoteEntity justDeletedNoteEntity = new NoteEntity(noteEntity.getTitle(), noteEntity.getDetail());
+            closeEditNoteFragmentIfItContainsNoteToDelete(noteEntity.getId());
             deleteNoteEntity(noteEntity);
             notifyUserThatNoteWasDeleted(justDeletedNoteEntity);
             return true;
         });
         popupMenu.show();
+    }
+
+    private void closeEditNoteFragmentIfItContainsNoteToDelete(int noteId) {
+        Fragment currentNoteEditFragment = getSupportFragmentManager().findFragmentById(binding.editNoteFragmentContainer.getId());
+        if (currentNoteEditFragment instanceof EditNoteFragment){
+            if (((EditNoteFragment) currentNoteEditFragment).getCurrentNoteId() == noteId){
+                closeEditNoteFragment();
+            }
+        }
     }
 
     private void notifyUserThatNoteWasDeleted(NoteEntity noteEntity) {

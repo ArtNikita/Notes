@@ -23,6 +23,11 @@ public class EditNoteFragment extends Fragment {
     private boolean isNewNote;
     private NoteEntity inputNoteEntity;
 
+    public int getCurrentNoteId(){
+        if (inputNoteEntity == null) return -1;
+        return inputNoteEntity.getId();
+    }
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
