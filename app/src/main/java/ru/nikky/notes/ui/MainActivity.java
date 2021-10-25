@@ -18,7 +18,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import ru.nikky.notes.App;
 import ru.nikky.notes.R;
+import ru.nikky.notes.databinding.ActivityMainBinding;
 import ru.nikky.notes.domain.NoteEntity;
 import ru.nikky.notes.ui.pages.about.AboutFragment;
 import ru.nikky.notes.ui.pages.edit.EditNoteFragment;
@@ -27,17 +29,19 @@ import ru.nikky.notes.ui.pages.settings.SettingsFragment;
 
 public class MainActivity extends AppCompatActivity implements NotesListFragment.Contract, EditNoteFragment.Contract {
 
+    private ActivityMainBinding binding;
     private static final int VIBRATION_TIME = 40;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.notes_list_fragment_container, new NotesListFragment())
+                    .replace(binding.notesListFragmentContainer.getId(), new NotesListFragment())
                     .commit();
         }
     }
@@ -59,11 +63,21 @@ public class MainActivity extends AppCompatActivity implements NotesListFragment
         popupMenu.inflate(R.menu.notes_list_popup_menu);
         popupMenu.setOnMenuItemClickListener(menuItem -> {
             NoteEntity justDeletedNoteEntity = new NoteEntity(noteEntity.getTitle(), noteEntity.getDetail());
+            closeEditNoteFragmentIfItContainsNoteToDelete(noteEntity.getId());
             deleteNoteEntity(noteEntity);
             notifyUserThatNoteWasDeleted(justDeletedNoteEntity);
             return true;
         });
         popupMenu.show();
+    }
+
+    private void closeEditNoteFragmentIfItContainsNoteToDelete(int noteId) {
+        Fragment currentNoteEditFragment = getSupportFragmentManager().findFragmentById(binding.editNoteFragmentContainer.getId());
+        if (currentNoteEditFragment instanceof EditNoteFragment){
+            if (((EditNoteFragment) currentNoteEditFragment).getCurrentNoteId() == noteId){
+                closeEditNoteFragment();
+            }
+        }
     }
 
     private void notifyUserThatNoteWasDeleted(NoteEntity noteEntity) {
@@ -100,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements NotesListFragment
         closeEditNoteFragment();
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.edit_note_fragment_container, EditNoteFragment.newInstance(noteEntity))
+                .replace(binding.editNoteFragmentContainer.getId(), EditNoteFragment.newInstance(noteEntity))
                 .addToBackStack(null)
                 .commit();
     }
@@ -113,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements NotesListFragment
     }
 
     private void notifyNoteEntityChanged(NoteEntity noteEntity){
-        NotesListFragment notesListFragment = (NotesListFragment) getSupportFragmentManager().findFragmentById(R.id.notes_list_fragment_container);
+        NotesListFragment notesListFragment = (NotesListFragment) getSupportFragmentManager().findFragmentById(binding.notesListFragmentContainer.getId());
         if (notesListFragment != null) notesListFragment.receiveNoteEntity(noteEntity);
     }
 
@@ -128,5 +142,15 @@ public class MainActivity extends AppCompatActivity implements NotesListFragment
             view = new View(this);
         }
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        saveNotesRepo();
+    }
+
+    private void saveNotesRepo() {
+        ((App) getApplication()).saveNotesRepo();
     }
 }
