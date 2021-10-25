@@ -2,13 +2,15 @@ package ru.nikky.notes.ui;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.FrameLayout;
 import android.widget.PopupMenu;
-import android.widget.Toast;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
@@ -16,22 +18,30 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import ru.nikky.notes.App;
 import ru.nikky.notes.R;
+import ru.nikky.notes.databinding.ActivityMainBinding;
 import ru.nikky.notes.domain.NoteEntity;
+import ru.nikky.notes.ui.pages.about.AboutFragment;
+import ru.nikky.notes.ui.pages.edit.EditNoteFragment;
+import ru.nikky.notes.ui.pages.list.NotesListFragment;
+import ru.nikky.notes.ui.pages.settings.SettingsFragment;
 
 public class MainActivity extends AppCompatActivity implements NotesListFragment.Contract, EditNoteFragment.Contract {
 
+    private ActivityMainBinding binding;
     private static final int VIBRATION_TIME = 40;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.notes_list_fragment_container, new NotesListFragment())
+                    .replace(binding.notesListFragmentContainer.getId(), new NotesListFragment())
                     .commit();
         }
     }
@@ -52,12 +62,37 @@ public class MainActivity extends AppCompatActivity implements NotesListFragment
         PopupMenu popupMenu = new PopupMenu(this, view);
         popupMenu.inflate(R.menu.notes_list_popup_menu);
         popupMenu.setOnMenuItemClickListener(menuItem -> {
-            noteEntity.setTitle("");
-            noteEntity.setDetail("");
+            NoteEntity justDeletedNoteEntity = new NoteEntity(noteEntity.getTitle(), noteEntity.getDetail());
+            closeEditNoteFragmentIfItContainsNoteToDelete(noteEntity.getId());
             deleteNoteEntity(noteEntity);
+            notifyUserThatNoteWasDeleted(justDeletedNoteEntity);
             return true;
         });
         popupMenu.show();
+    }
+
+    private void closeEditNoteFragmentIfItContainsNoteToDelete(int noteId) {
+        Fragment currentNoteEditFragment = getSupportFragmentManager().findFragmentById(binding.editNoteFragmentContainer.getId());
+        if (currentNoteEditFragment instanceof EditNoteFragment){
+            if (((EditNoteFragment) currentNoteEditFragment).getCurrentNoteId() == noteId){
+                closeEditNoteFragment();
+            }
+        }
+    }
+
+    private void notifyUserThatNoteWasDeleted(NoteEntity noteEntity) {
+        Snackbar.make(findViewById(R.id.add_note_floating_action_button), getString(R.string.note_was_deleted_snackbar_text), Snackbar.LENGTH_LONG)
+                .setAction(R.string.undo_snackbar_action_text, v -> notifyNoteEntityChanged(noteEntity))
+                .setBackgroundTint(getColor(R.color.yellow))
+                .setTextColor(getColor(R.color.pink))
+                .setActionTextColor(getColor(R.color.pink))
+                .show();
+    }
+
+    private void deleteNoteEntity(NoteEntity noteEntity){
+        noteEntity.setTitle("");
+        noteEntity.setDetail("");
+        notifyNoteEntityChanged(noteEntity);
     }
 
     private void vibrate(){
@@ -67,50 +102,32 @@ public class MainActivity extends AppCompatActivity implements NotesListFragment
 
     @Override
     public void settingsButtonPressed() {
-        popNotEditNoteFragmentFromBackStack();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.edit_note_fragment_container, new SettingsFragment())
-                .addToBackStack(null)
-                .commit();
+        new SettingsFragment().show(getSupportFragmentManager(), null);
     }
 
     @Override
     public void aboutButtonPressed() {
-        popNotEditNoteFragmentFromBackStack();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.edit_note_fragment_container, new AboutFragment())
-                .addToBackStack(null)
-                .commit();
-    }
-
-    private void popNotEditNoteFragmentFromBackStack(){
-        List<Fragment> fragments = getSupportFragmentManager().getFragments();
-        if (!fragments.isEmpty() &&
-                !(fragments.get(fragments.size() - 1) instanceof EditNoteFragment)){
-            getSupportFragmentManager().popBackStack();
-        }
+        new AboutFragment().show(getSupportFragmentManager(), null);
     }
 
     private void launchEditNoteFragment(NoteEntity noteEntity) {
         closeEditNoteFragment();
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.edit_note_fragment_container, EditNoteFragment.newInstance(noteEntity))
+                .replace(binding.editNoteFragmentContainer.getId(), EditNoteFragment.newInstance(noteEntity))
                 .addToBackStack(null)
                 .commit();
     }
 
     @Override
     public void saveResult(NoteEntity noteEntity) {
-        deleteNoteEntity(noteEntity);
+        notifyNoteEntityChanged(noteEntity);
         closeEditNoteFragment();
         hideKeyboard();
     }
 
-    private void deleteNoteEntity(NoteEntity noteEntity){
-        NotesListFragment notesListFragment = (NotesListFragment) getSupportFragmentManager().findFragmentById(R.id.notes_list_fragment_container);
+    private void notifyNoteEntityChanged(NoteEntity noteEntity){
+        NotesListFragment notesListFragment = (NotesListFragment) getSupportFragmentManager().findFragmentById(binding.notesListFragmentContainer.getId());
         if (notesListFragment != null) notesListFragment.receiveNoteEntity(noteEntity);
     }
 
@@ -125,5 +142,15 @@ public class MainActivity extends AppCompatActivity implements NotesListFragment
             view = new View(this);
         }
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        saveNotesRepo();
+    }
+
+    private void saveNotesRepo() {
+        ((App) getApplication()).saveNotesRepo();
     }
 }

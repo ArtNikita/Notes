@@ -1,5 +1,6 @@
-package ru.nikky.notes.ui;
+package ru.nikky.notes.ui.pages.list;
 
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -8,6 +9,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import ru.nikky.notes.databinding.RecyclerViewNoteItemBinding;
 import ru.nikky.notes.domain.NoteEntity;
 
 public class NotesAdapter extends RecyclerView.Adapter<NoteVH>{
@@ -23,7 +25,11 @@ public class NotesAdapter extends RecyclerView.Adapter<NoteVH>{
     @NonNull
     @Override
     public NoteVH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new NoteVH(parent, clickListener);
+        RecyclerViewNoteItemBinding binding =
+                RecyclerViewNoteItemBinding.inflate(LayoutInflater.from(parent.getContext()),
+                        parent,
+                        false);
+        return new NoteVH(parent, clickListener, binding);
     }
 
     @Override
@@ -44,7 +50,7 @@ public class NotesAdapter extends RecyclerView.Adapter<NoteVH>{
         clickListener = listener;
     }
 
-    interface OnItemClickListener{
+    public interface OnItemClickListener{
         void onItemClick(NoteEntity item);
         void onItemLongClick(NoteEntity item, View anchorView);
     }

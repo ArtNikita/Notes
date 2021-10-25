@@ -1,7 +1,6 @@
-package ru.nikky.notes.ui;
+package ru.nikky.notes.ui.pages.edit;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,17 +13,20 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import ru.nikky.notes.R;
+import ru.nikky.notes.databinding.FragmentEditNoteBinding;
 import ru.nikky.notes.domain.NoteEntity;
 
 public class EditNoteFragment extends Fragment {
 
-    private EditText titleEditText;
-    private EditText detailEditText;
-    private MaterialButton saveButton;
-
+    private FragmentEditNoteBinding binding;
     public static final String KEY_NOTE_ENTITY = "KEY_NOTE_ENTITY";
     private boolean isNewNote;
     private NoteEntity inputNoteEntity;
+
+    public int getCurrentNoteId(){
+        if (inputNoteEntity == null) return -1;
+        return inputNoteEntity.getId();
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -37,32 +39,30 @@ public class EditNoteFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_edit_note, container, false);
+        binding = FragmentEditNoteBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onDestroyView() {
+        binding = null;
+        super.onDestroyView();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        initViews(view);
         setupListeners();
         processInputArguments(getArguments());
     }
 
-    private void initViews(View view) {
-        titleEditText = view.findViewById(R.id.title_edit_text);
-        detailEditText = view.findViewById(R.id.detail_edit_text);
-        saveButton = view.findViewById(R.id.save_note_button);
-    }
-
     private void setupListeners() {
-        saveButton.setOnClickListener(v -> {
-            getContractActivity().saveResult(getNote());
-        });
+        binding.saveNoteButton.setOnClickListener(v -> getContractActivity().saveResult(getNote()));
     }
 
     private NoteEntity getNote() {
-        String titleText = titleEditText.getText().toString().trim();
-        String detailText = detailEditText.getText().toString().trim();
+        String titleText = binding.titleEditText.getText().toString().trim();
+        String detailText = binding.detailEditText.getText().toString().trim();
         NoteEntity outputNoteEntity;
         if (isNewNote){
             outputNoteEntity = new NoteEntity(titleText, detailText);
@@ -78,8 +78,8 @@ public class EditNoteFragment extends Fragment {
         inputNoteEntity = (NoteEntity) arguments.get(KEY_NOTE_ENTITY);
         isNewNote = inputNoteEntity == null;
         if (!isNewNote){
-            titleEditText.setText(inputNoteEntity.getTitle());
-            detailEditText.setText(inputNoteEntity.getDetail());
+            binding.titleEditText.setText(inputNoteEntity.getTitle());
+            binding.detailEditText.setText(inputNoteEntity.getDetail());
         }
     }
 
