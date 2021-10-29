@@ -9,6 +9,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -95,6 +97,15 @@ public class NotesListFragment extends Fragment {
         } else {
             processEditedEntity(noteEntity);
         }
+    }
+
+    public void notifyUserThatNoteWasDeleted(NoteEntity noteEntity) {
+        Snackbar.make(binding.addNoteFloatingActionButton, getString(R.string.note_was_deleted_snackbar_text), Snackbar.LENGTH_LONG)
+                .setAction(R.string.undo_snackbar_action_text, v -> receiveNoteEntity(noteEntity))
+                .setBackgroundTint(requireContext().getColor(R.color.yellow))
+                .setTextColor(requireContext().getColor(R.color.pink))
+                .setActionTextColor(requireContext().getColor(R.color.pink))
+                .show();
     }
 
     private void processNewEditedEntity(NoteEntity noteEntity) {

@@ -81,12 +81,8 @@ public class MainActivity extends AppCompatActivity implements NotesListFragment
     }
 
     private void notifyUserThatNoteWasDeleted(NoteEntity noteEntity) {
-        Snackbar.make(findViewById(R.id.add_note_floating_action_button), getString(R.string.note_was_deleted_snackbar_text), Snackbar.LENGTH_LONG)
-                .setAction(R.string.undo_snackbar_action_text, v -> notifyNoteEntityChanged(noteEntity))
-                .setBackgroundTint(getColor(R.color.yellow))
-                .setTextColor(getColor(R.color.pink))
-                .setActionTextColor(getColor(R.color.pink))
-                .show();
+        NotesListFragment notesListFragment = (NotesListFragment) getSupportFragmentManager().findFragmentById(binding.notesListFragmentContainer.getId());
+        if (notesListFragment != null) notesListFragment.notifyUserThatNoteWasDeleted(noteEntity);
     }
 
     private void deleteNoteEntity(NoteEntity noteEntity){
