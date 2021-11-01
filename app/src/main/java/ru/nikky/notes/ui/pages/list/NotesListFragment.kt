@@ -1,41 +1,45 @@
 package ru.nikky.notes.ui.pages.list
 
 import android.content.Context
-import ru.nikky.notes.ui.pages.list.NotesAdapter
-import ru.nikky.notes.domain.NoteEntity
-import ru.nikky.notes.domain.NotesRepo
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import ru.nikky.notes.R
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import ru.nikky.notes.App
-import androidx.recyclerview.widget.LinearLayoutManager
+import ru.nikky.notes.R
 import ru.nikky.notes.databinding.FragmentNotesListBinding
+import ru.nikky.notes.domain.NoteEntity
+import ru.nikky.notes.domain.NotesRepo
 
 class NotesListFragment : Fragment() {
     private val listener: NotesAdapter.OnItemClickListener = object : NotesAdapter.OnItemClickListener {
         override fun onItemClick(noteEntity: NoteEntity) {
-            contractActivity!!.noteItemPressed(noteEntity)
+            contractActivity.noteItemPressed(noteEntity)
         }
 
         override fun onItemLongClick(noteEntity: NoteEntity, anchorView: View) {
-            contractActivity!!.noteItemPressedLong(noteEntity, anchorView)
+            contractActivity.noteItemPressedLong(noteEntity, anchorView)
         }
     }
     private var binding: FragmentNotesListBinding? = null
-    private var adapter: NotesAdapter? = null
-    private var notesRepo: NotesRepo? = null
+    private lateinit var adapter: NotesAdapter
+    private lateinit var notesRepo: NotesRepo
     override fun onAttach(context: Context) {
         super.onAttach(context)
         check(context is Contract) { "Launcher activity must implement NotesListFragment.Contract" }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentNotesListBinding.inflate(inflater, container, false)
         setHasOptionsMenu(true)
         return binding!!.root
+    }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -51,7 +55,7 @@ class NotesListFragment : Fragment() {
     }
 
     private fun setupAddNoteFloatingActionButton() {
-        binding!!.addNoteFloatingActionButton.setOnClickListener { v: View? -> addNoteButtonPressed() }
+        binding!!.addNoteFloatingActionButton.setOnClickListener { addNoteButtonPressed() }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -60,15 +64,17 @@ class NotesListFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.settings_menu) {
-            settingsButtonPressed()
-            return true
+        return when (item.itemId) {
+            R.id.settings_menu -> {
+                settingsButtonPressed()
+                true
+            }
+            R.id.about_menu -> {
+                aboutButtonPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
-        if (item.itemId == R.id.about_menu) {
-            aboutButtonPressed()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     fun receiveNoteEntity(noteEntity: NoteEntity) {
@@ -81,7 +87,7 @@ class NotesListFragment : Fragment() {
 
     fun notifyUserThatNoteWasDeleted(noteEntity: NoteEntity) {
         Snackbar.make(binding!!.addNoteFloatingActionButton, getString(R.string.note_was_deleted_snackbar_text), Snackbar.LENGTH_LONG)
-                .setAction(R.string.undo_snackbar_action_text) { v: View? -> receiveNoteEntity(noteEntity) }
+                .setAction(R.string.undo_snackbar_action_text) { receiveNoteEntity(noteEntity) }
                 .setBackgroundTint(requireContext().getColor(R.color.yellow))
                 .setTextColor(requireContext().getColor(R.color.pink))
                 .setActionTextColor(requireContext().getColor(R.color.pink))
@@ -90,29 +96,29 @@ class NotesListFragment : Fragment() {
 
     private fun processNewEditedEntity(noteEntity: NoteEntity) {
         if (noteEntity.isEmpty) return
-        notesRepo!!.add(noteEntity.title, noteEntity.detail)
-        adapter!!.setData(notesRepo!!.notes)
+        notesRepo.add(noteEntity.title, noteEntity.detail)
+        adapter.setData(notesRepo.notes)
     }
 
     private fun processEditedEntity(noteEntity: NoteEntity) {
         if (noteEntity.isEmpty) {
-            notesRepo!!.delete(noteEntity.id)
+            notesRepo.delete(noteEntity.id)
         } else {
-            notesRepo!!.update(noteEntity.id, noteEntity.title, noteEntity.detail)
+            notesRepo.update(noteEntity.id, noteEntity.title, noteEntity.detail)
         }
-        adapter!!.setData(notesRepo!!.notes)
+        adapter.setData(notesRepo.notes)
     }
 
     private fun addNoteButtonPressed() {
-        contractActivity!!.addNoteButtonPressed()
+        contractActivity.addNoteButtonPressed()
     }
 
     private fun settingsButtonPressed() {
-        contractActivity!!.settingsButtonPressed()
+        contractActivity.settingsButtonPressed()
     }
 
     private fun aboutButtonPressed() {
-        contractActivity!!.aboutButtonPressed()
+        contractActivity.aboutButtonPressed()
     }
 
     private fun initNotesRepo() {
@@ -120,24 +126,24 @@ class NotesListFragment : Fragment() {
     }
 
     private val app: App
-        private get() = requireActivity().application as App
+        get() = requireActivity().application as App
 
     private fun initRecyclerView() {
         binding!!.notesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         adapter = NotesAdapter()
-        adapter!!.setOnItemClickListener(listener)
+        adapter.setOnItemClickListener(listener)
         binding!!.notesRecyclerView.adapter = adapter
-        adapter!!.setData(notesRepo!!.notes)
+        adapter.setData(notesRepo.notes)
     }
 
-    private val contractActivity: Contract?
-        private get() = activity as Contract?
+    private val contractActivity: Contract
+        get() = activity as Contract
 
     interface Contract {
         fun addNoteButtonPressed()
-        fun noteItemPressed(noteEntity: NoteEntity?)
+        fun noteItemPressed(noteEntity: NoteEntity)
         fun settingsButtonPressed()
         fun aboutButtonPressed()
-        fun noteItemPressedLong(noteEntity: NoteEntity?, anchorView: View?)
+        fun noteItemPressedLong(noteEntity: NoteEntity, anchorView: View)
     }
 }

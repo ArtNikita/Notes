@@ -12,8 +12,11 @@ import android.widget.PopupMenu;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -52,12 +55,12 @@ public class MainActivity extends AppCompatActivity implements NotesListFragment
     }
 
     @Override
-    public void noteItemPressed(NoteEntity noteEntity) {
+    public void noteItemPressed(@NonNull NoteEntity noteEntity) {
         launchEditNoteFragment(noteEntity);
     }
 
     @Override
-    public void noteItemPressedLong(NoteEntity noteEntity, View view) {
+    public void noteItemPressedLong(@NotNull NoteEntity noteEntity, @NotNull View view) {
         vibrate();
         PopupMenu popupMenu = new PopupMenu(this, view);
         popupMenu.inflate(R.menu.notes_list_popup_menu);

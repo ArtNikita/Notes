@@ -1,14 +1,13 @@
 package ru.nikky.notes.ui.pages.edit
 
 import android.content.Context
-import ru.nikky.notes.domain.NoteEntity
-import android.view.LayoutInflater
-import android.view.ViewGroup
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import ru.nikky.notes.databinding.FragmentEditNoteBinding
-import ru.nikky.notes.ui.pages.edit.EditNoteFragment
+import ru.nikky.notes.domain.NoteEntity
 
 class EditNoteFragment : Fragment() {
     private var binding: FragmentEditNoteBinding? = null
@@ -35,30 +34,29 @@ class EditNoteFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupListeners()
-        processInputArguments(arguments)
+        processInputArguments()
     }
 
     private fun setupListeners() {
-        binding!!.saveNoteButton.setOnClickListener { v: View? -> contractActivity!!.saveResult(note) }
+        binding!!.saveNoteButton.setOnClickListener { contractActivity.saveResult(note) }
     }
 
     private val note: NoteEntity?
-        private get() {
+        get() {
             val titleText = binding!!.titleEditText.text.toString().trim { it <= ' ' }
             val detailText = binding!!.detailEditText.text.toString().trim { it <= ' ' }
-            val outputNoteEntity: NoteEntity?
-            if (isNewNote) {
-                outputNoteEntity = NoteEntity(titleText, detailText)
+            val outputNoteEntity = if (isNewNote) {
+                NoteEntity(titleText, detailText)
             } else {
                 inputNoteEntity!!.title = titleText
                 inputNoteEntity!!.detail = detailText
-                outputNoteEntity = inputNoteEntity
+                inputNoteEntity
             }
             return outputNoteEntity
         }
 
-    private fun processInputArguments(arguments: Bundle?) {
-        inputNoteEntity = arguments!![KEY_NOTE_ENTITY] as NoteEntity?
+    private fun processInputArguments() {
+        inputNoteEntity = requireArguments()[KEY_NOTE_ENTITY] as NoteEntity?
         isNewNote = inputNoteEntity == null
         if (!isNewNote) {
             binding!!.titleEditText.setText(inputNoteEntity!!.title)
@@ -70,11 +68,12 @@ class EditNoteFragment : Fragment() {
         fun saveResult(noteEntity: NoteEntity?)
     }
 
-    private val contractActivity: Contract?
-        private get() = activity as Contract?
+    private val contractActivity: Contract
+        get() = activity as Contract
 
     companion object {
         const val KEY_NOTE_ENTITY = "KEY_NOTE_ENTITY"
+
         @JvmStatic
         fun newInstance(noteEntity: NoteEntity?): EditNoteFragment {
             val editNoteFragment = EditNoteFragment()
