@@ -1,169 +1,143 @@
-package ru.nikky.notes.ui.pages.list;
+package ru.nikky.notes.ui.pages.list
 
-import android.content.Context;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.content.Context
+import ru.nikky.notes.ui.pages.list.NotesAdapter
+import ru.nikky.notes.domain.NoteEntity
+import ru.nikky.notes.domain.NotesRepo
+import android.os.Bundle
+import android.view.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import ru.nikky.notes.R
+import com.google.android.material.snackbar.Snackbar
+import ru.nikky.notes.App
+import androidx.recyclerview.widget.LinearLayoutManager
+import ru.nikky.notes.databinding.FragmentNotesListBinding
 
-import com.google.android.material.snackbar.Snackbar;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import ru.nikky.notes.App;
-import ru.nikky.notes.R;
-import ru.nikky.notes.databinding.FragmentNotesListBinding;
-import ru.nikky.notes.domain.NoteEntity;
-import ru.nikky.notes.domain.NotesRepo;
-
-public class NotesListFragment extends Fragment {
-
-    private final NotesAdapter.OnItemClickListener listener = new NotesAdapter.OnItemClickListener() {
-        @Override
-        public void onItemClick(NoteEntity noteEntity) {
-            getContractActivity().noteItemPressed(noteEntity);
+class NotesListFragment : Fragment() {
+    private val listener: NotesAdapter.OnItemClickListener = object : NotesAdapter.OnItemClickListener {
+        override fun onItemClick(noteEntity: NoteEntity) {
+            contractActivity!!.noteItemPressed(noteEntity)
         }
 
-        @Override
-        public void onItemLongClick(NoteEntity noteEntity, View anchorView) {
-            getContractActivity().noteItemPressedLong(noteEntity, anchorView);
-        }
-    };
-    private FragmentNotesListBinding binding;
-    private NotesAdapter adapter;
-    private NotesRepo notesRepo;
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        if (!(context instanceof Contract)) {
-            throw new IllegalStateException("Launcher activity must implement NotesListFragment.Contract");
+        override fun onItemLongClick(noteEntity: NoteEntity, anchorView: View) {
+            contractActivity!!.noteItemPressedLong(noteEntity, anchorView)
         }
     }
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = FragmentNotesListBinding.inflate(inflater, container, false);
-        setHasOptionsMenu(true);
-        return binding.getRoot();
+    private var binding: FragmentNotesListBinding? = null
+    private var adapter: NotesAdapter? = null
+    private var notesRepo: NotesRepo? = null
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        check(context is Contract) { "Launcher activity must implement NotesListFragment.Contract" }
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        initToolBar();
-        setupAddNoteFloatingActionButton();
-        initNotesRepo();
-        initRecyclerView();
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = FragmentNotesListBinding.inflate(inflater, container, false)
+        setHasOptionsMenu(true)
+        return binding!!.root
     }
 
-    private void initToolBar() {
-        ((AppCompatActivity) requireActivity()).setSupportActionBar(binding.notesListActivityToolbar);
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initToolBar()
+        setupAddNoteFloatingActionButton()
+        initNotesRepo()
+        initRecyclerView()
     }
 
-    private void setupAddNoteFloatingActionButton() {
-        binding.addNoteFloatingActionButton.setOnClickListener(v -> addNoteButtonPressed());
+    private fun initToolBar() {
+        (requireActivity() as AppCompatActivity).setSupportActionBar(binding!!.notesListActivityToolbar)
     }
 
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.notes_list_activity_toolbar_menu, menu);
+    private fun setupAddNoteFloatingActionButton() {
+        binding!!.addNoteFloatingActionButton.setOnClickListener { v: View? -> addNoteButtonPressed() }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.settings_menu) {
-            settingsButtonPressed();
-            return true;
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.notes_list_activity_toolbar_menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.settings_menu) {
+            settingsButtonPressed()
+            return true
         }
-        if (item.getItemId() == R.id.about_menu) {
-            aboutButtonPressed();
-            return true;
+        if (item.itemId == R.id.about_menu) {
+            aboutButtonPressed()
+            return true
         }
-        return super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(item)
     }
 
-    public void receiveNoteEntity(NoteEntity noteEntity) {
-        if (noteEntity.getId() == NoteEntity.NEW_NOTE_ENTITY_ID) {
-            processNewEditedEntity(noteEntity);
+    fun receiveNoteEntity(noteEntity: NoteEntity) {
+        if (noteEntity.id == NoteEntity.NEW_NOTE_ENTITY_ID) {
+            processNewEditedEntity(noteEntity)
         } else {
-            processEditedEntity(noteEntity);
+            processEditedEntity(noteEntity)
         }
     }
 
-    public void notifyUserThatNoteWasDeleted(NoteEntity noteEntity) {
-        Snackbar.make(binding.addNoteFloatingActionButton, getString(R.string.note_was_deleted_snackbar_text), Snackbar.LENGTH_LONG)
-                .setAction(R.string.undo_snackbar_action_text, v -> receiveNoteEntity(noteEntity))
+    fun notifyUserThatNoteWasDeleted(noteEntity: NoteEntity) {
+        Snackbar.make(binding!!.addNoteFloatingActionButton, getString(R.string.note_was_deleted_snackbar_text), Snackbar.LENGTH_LONG)
+                .setAction(R.string.undo_snackbar_action_text) { v: View? -> receiveNoteEntity(noteEntity) }
                 .setBackgroundTint(requireContext().getColor(R.color.yellow))
                 .setTextColor(requireContext().getColor(R.color.pink))
                 .setActionTextColor(requireContext().getColor(R.color.pink))
-                .show();
+                .show()
     }
 
-    private void processNewEditedEntity(NoteEntity noteEntity) {
-        if (noteEntity.isEmpty()) return;
-        notesRepo.add(noteEntity.getTitle(), noteEntity.getDetail());
-        adapter.setData(notesRepo.getNotes());
+    private fun processNewEditedEntity(noteEntity: NoteEntity) {
+        if (noteEntity.isEmpty) return
+        notesRepo!!.add(noteEntity.title, noteEntity.detail)
+        adapter!!.setData(notesRepo!!.notes)
     }
 
-    private void processEditedEntity(NoteEntity noteEntity) {
-        if (noteEntity.isEmpty()) {
-            notesRepo.delete(noteEntity.getId());
+    private fun processEditedEntity(noteEntity: NoteEntity) {
+        if (noteEntity.isEmpty) {
+            notesRepo!!.delete(noteEntity.id)
         } else {
-            notesRepo.update(noteEntity.getId(), noteEntity.getTitle(), noteEntity.getDetail());
+            notesRepo!!.update(noteEntity.id, noteEntity.title, noteEntity.detail)
         }
-        adapter.setData(notesRepo.getNotes());
+        adapter!!.setData(notesRepo!!.notes)
     }
 
-    private void addNoteButtonPressed() {
-        getContractActivity().addNoteButtonPressed();
+    private fun addNoteButtonPressed() {
+        contractActivity!!.addNoteButtonPressed()
     }
 
-    private void settingsButtonPressed() {
-        getContractActivity().settingsButtonPressed();
+    private fun settingsButtonPressed() {
+        contractActivity!!.settingsButtonPressed()
     }
 
-    private void aboutButtonPressed() {
-        getContractActivity().aboutButtonPressed();
+    private fun aboutButtonPressed() {
+        contractActivity!!.aboutButtonPressed()
     }
 
-    private void initNotesRepo() {
-        notesRepo = getApp().getNotesRepo();
+    private fun initNotesRepo() {
+        notesRepo = app.notesRepo
     }
 
-    private App getApp() {
-        return (App) requireActivity().getApplication();
+    private val app: App
+        private get() = requireActivity().application as App
+
+    private fun initRecyclerView() {
+        binding!!.notesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        adapter = NotesAdapter()
+        adapter!!.setOnItemClickListener(listener)
+        binding!!.notesRecyclerView.adapter = adapter
+        adapter!!.setData(notesRepo!!.notes)
     }
 
-    private void initRecyclerView() {
-        binding.notesRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        adapter = new NotesAdapter();
-        adapter.setOnItemClickListener(listener);
-        binding.notesRecyclerView.setAdapter(adapter);
-        adapter.setData(notesRepo.getNotes());
-    }
+    private val contractActivity: Contract?
+        private get() = activity as Contract?
 
-    private Contract getContractActivity() {
-        return (Contract) getActivity();
-    }
-
-    public interface Contract {
-        void addNoteButtonPressed();
-
-        void noteItemPressed(NoteEntity noteEntity);
-
-        void settingsButtonPressed();
-
-        void aboutButtonPressed();
-
-        void noteItemPressedLong(NoteEntity noteEntity, View anchorView);
+    interface Contract {
+        fun addNoteButtonPressed()
+        fun noteItemPressed(noteEntity: NoteEntity?)
+        fun settingsButtonPressed()
+        fun aboutButtonPressed()
+        fun noteItemPressedLong(noteEntity: NoteEntity?, anchorView: View?)
     }
 }

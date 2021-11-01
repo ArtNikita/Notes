@@ -1,101 +1,87 @@
-package ru.nikky.notes.ui.pages.edit;
+package ru.nikky.notes.ui.pages.edit
 
-import android.content.Context;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
+import android.content.Context
+import ru.nikky.notes.domain.NoteEntity
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import android.os.Bundle
+import android.view.View
+import androidx.fragment.app.Fragment
+import ru.nikky.notes.databinding.FragmentEditNoteBinding
+import ru.nikky.notes.ui.pages.edit.EditNoteFragment
 
-import com.google.android.material.button.MaterialButton;
+class EditNoteFragment : Fragment() {
+    private var binding: FragmentEditNoteBinding? = null
+    private var isNewNote = false
+    private var inputNoteEntity: NoteEntity? = null
+    val currentNoteId: Int
+        get() = if (inputNoteEntity == null) -1 else inputNoteEntity!!.id
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import ru.nikky.notes.R;
-import ru.nikky.notes.databinding.FragmentEditNoteBinding;
-import ru.nikky.notes.domain.NoteEntity;
-
-public class EditNoteFragment extends Fragment {
-
-    private FragmentEditNoteBinding binding;
-    public static final String KEY_NOTE_ENTITY = "KEY_NOTE_ENTITY";
-    private boolean isNewNote;
-    private NoteEntity inputNoteEntity;
-
-    public int getCurrentNoteId(){
-        if (inputNoteEntity == null) return -1;
-        return inputNoteEntity.getId();
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        check(context is Contract) { "Launcher activity must implement EditNoteFragment.Contract" }
     }
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        if (!(context instanceof EditNoteFragment.Contract)){
-            throw new IllegalStateException("Launcher activity must implement EditNoteFragment.Contract");
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = FragmentEditNoteBinding.inflate(inflater, container, false)
+        return binding!!.root
+    }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupListeners()
+        processInputArguments(arguments)
+    }
+
+    private fun setupListeners() {
+        binding!!.saveNoteButton.setOnClickListener { v: View? -> contractActivity!!.saveResult(note) }
+    }
+
+    private val note: NoteEntity?
+        private get() {
+            val titleText = binding!!.titleEditText.text.toString().trim { it <= ' ' }
+            val detailText = binding!!.detailEditText.text.toString().trim { it <= ' ' }
+            val outputNoteEntity: NoteEntity?
+            if (isNewNote) {
+                outputNoteEntity = NoteEntity(titleText, detailText)
+            } else {
+                inputNoteEntity!!.title = titleText
+                inputNoteEntity!!.detail = detailText
+                outputNoteEntity = inputNoteEntity
+            }
+            return outputNoteEntity
+        }
+
+    private fun processInputArguments(arguments: Bundle?) {
+        inputNoteEntity = arguments!![KEY_NOTE_ENTITY] as NoteEntity?
+        isNewNote = inputNoteEntity == null
+        if (!isNewNote) {
+            binding!!.titleEditText.setText(inputNoteEntity!!.title)
+            binding!!.detailEditText.setText(inputNoteEntity!!.detail)
         }
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = FragmentEditNoteBinding.inflate(inflater, container, false);
-        return binding.getRoot();
+    interface Contract {
+        fun saveResult(noteEntity: NoteEntity?)
     }
 
-    @Override
-    public void onDestroyView() {
-        binding = null;
-        super.onDestroyView();
-    }
+    private val contractActivity: Contract?
+        private get() = activity as Contract?
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        setupListeners();
-        processInputArguments(getArguments());
-    }
-
-    private void setupListeners() {
-        binding.saveNoteButton.setOnClickListener(v -> getContractActivity().saveResult(getNote()));
-    }
-
-    private NoteEntity getNote() {
-        String titleText = binding.titleEditText.getText().toString().trim();
-        String detailText = binding.detailEditText.getText().toString().trim();
-        NoteEntity outputNoteEntity;
-        if (isNewNote){
-            outputNoteEntity = new NoteEntity(titleText, detailText);
-        } else {
-            inputNoteEntity.setTitle(titleText);
-            inputNoteEntity.setDetail(detailText);
-            outputNoteEntity = inputNoteEntity;
+    companion object {
+        const val KEY_NOTE_ENTITY = "KEY_NOTE_ENTITY"
+        @JvmStatic
+        fun newInstance(noteEntity: NoteEntity?): EditNoteFragment {
+            val editNoteFragment = EditNoteFragment()
+            val bundle = Bundle()
+            bundle.putParcelable(KEY_NOTE_ENTITY, noteEntity)
+            editNoteFragment.arguments = bundle
+            return editNoteFragment
         }
-        return outputNoteEntity;
-    }
-
-    private void processInputArguments(Bundle arguments) {
-        inputNoteEntity = (NoteEntity) arguments.get(KEY_NOTE_ENTITY);
-        isNewNote = inputNoteEntity == null;
-        if (!isNewNote){
-            binding.titleEditText.setText(inputNoteEntity.getTitle());
-            binding.detailEditText.setText(inputNoteEntity.getDetail());
-        }
-    }
-
-    public static EditNoteFragment newInstance(NoteEntity noteEntity){
-        EditNoteFragment editNoteFragment = new EditNoteFragment();
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(KEY_NOTE_ENTITY, noteEntity);
-        editNoteFragment.setArguments(bundle);
-        return editNoteFragment;
-    }
-
-    public interface Contract{
-        void saveResult(NoteEntity noteEntity);
-    }
-
-    private Contract getContractActivity(){
-        return (EditNoteFragment.Contract) getActivity();
     }
 }
