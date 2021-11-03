@@ -2,10 +2,14 @@ package ru.nikky.notes.ui.pages.list
 
 import android.content.Context
 import android.os.Bundle
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.google.android.material.snackbar.Snackbar
 import ru.nikky.notes.App
 import ru.nikky.notes.R
@@ -13,7 +17,7 @@ import ru.nikky.notes.databinding.FragmentNotesListBinding
 import ru.nikky.notes.domain.NoteEntity
 import ru.nikky.notes.domain.NotesRepo
 
-class NotesListFragment : Fragment() {
+class NotesListFragment : Fragment(R.layout.fragment_notes_list) {
     private val listener: NotesAdapter.OnItemClickListener = object : NotesAdapter.OnItemClickListener {
         override fun onItemClick(noteEntity: NoteEntity) {
             contractActivity.noteItemPressed(noteEntity)
@@ -23,7 +27,7 @@ class NotesListFragment : Fragment() {
             contractActivity.noteItemPressedLong(noteEntity, anchorView)
         }
     }
-    private var binding: FragmentNotesListBinding? = null
+    private val binding: FragmentNotesListBinding by viewBinding(FragmentNotesListBinding::bind)
     private lateinit var adapter: NotesAdapter
     private lateinit var notesRepo: NotesRepo
     override fun onAttach(context: Context) {
@@ -31,19 +35,9 @@ class NotesListFragment : Fragment() {
         check(context is Contract) { "Launcher activity must implement NotesListFragment.Contract" }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = FragmentNotesListBinding.inflate(inflater, container, false)
-        setHasOptionsMenu(true)
-        return binding!!.root
-    }
-
-    override fun onDestroyView() {
-        binding = null
-        super.onDestroyView()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setHasOptionsMenu(true)
         initToolBar()
         setupAddNoteFloatingActionButton()
         initNotesRepo()
@@ -51,11 +45,11 @@ class NotesListFragment : Fragment() {
     }
 
     private fun initToolBar() {
-        (requireActivity() as AppCompatActivity).setSupportActionBar(binding!!.notesListActivityToolbar)
+        (requireActivity() as AppCompatActivity).setSupportActionBar(binding.notesListActivityToolbar)
     }
 
     private fun setupAddNoteFloatingActionButton() {
-        binding!!.addNoteFloatingActionButton.setOnClickListener { addNoteButtonPressed() }
+        binding.addNoteFloatingActionButton.setOnClickListener { addNoteButtonPressed() }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -86,7 +80,7 @@ class NotesListFragment : Fragment() {
     }
 
     fun notifyUserThatNoteWasDeleted(noteEntity: NoteEntity) {
-        Snackbar.make(binding!!.addNoteFloatingActionButton, getString(R.string.note_was_deleted_snackbar_text), Snackbar.LENGTH_LONG)
+        Snackbar.make(binding.addNoteFloatingActionButton, getString(R.string.note_was_deleted_snackbar_text), Snackbar.LENGTH_LONG)
                 .setAction(R.string.undo_snackbar_action_text) { receiveNoteEntity(noteEntity) }
                 .setBackgroundTint(requireContext().getColor(R.color.yellow))
                 .setTextColor(requireContext().getColor(R.color.pink))
@@ -129,10 +123,10 @@ class NotesListFragment : Fragment() {
         get() = requireActivity().application as App
 
     private fun initRecyclerView() {
-        binding!!.notesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.notesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         adapter = NotesAdapter()
         adapter.setOnItemClickListener(listener)
-        binding!!.notesRecyclerView.adapter = adapter
+        binding.notesRecyclerView.adapter = adapter
         adapter.setData(notesRepo.notes)
     }
 

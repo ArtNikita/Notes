@@ -2,15 +2,15 @@ package ru.nikky.notes.ui.pages.edit
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import by.kirich1409.viewbindingdelegate.viewBinding
+import ru.nikky.notes.R
 import ru.nikky.notes.databinding.FragmentEditNoteBinding
 import ru.nikky.notes.domain.NoteEntity
 
-class EditNoteFragment : Fragment() {
-    private var binding: FragmentEditNoteBinding? = null
+class EditNoteFragment : Fragment(R.layout.fragment_edit_note) {
+    private val binding: FragmentEditNoteBinding by viewBinding(FragmentEditNoteBinding::bind)
     private var isNewNote = false
     private var inputNoteEntity: NoteEntity? = null
     val currentNoteId: Int
@@ -21,16 +21,6 @@ class EditNoteFragment : Fragment() {
         check(context is Contract) { "Launcher activity must implement EditNoteFragment.Contract" }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentEditNoteBinding.inflate(inflater, container, false)
-        return binding!!.root
-    }
-
-    override fun onDestroyView() {
-        binding = null
-        super.onDestroyView()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupListeners()
@@ -38,13 +28,13 @@ class EditNoteFragment : Fragment() {
     }
 
     private fun setupListeners() {
-        binding!!.saveNoteButton.setOnClickListener { contractActivity.saveResult(note) }
+        binding.saveNoteButton.setOnClickListener { contractActivity.saveResult(note) }
     }
 
     private val note: NoteEntity?
         get() {
-            val titleText = binding!!.titleEditText.text.toString().trim { it <= ' ' }
-            val detailText = binding!!.detailEditText.text.toString().trim { it <= ' ' }
+            val titleText = binding.titleEditText.text.toString().trim { it <= ' ' }
+            val detailText = binding.detailEditText.text.toString().trim { it <= ' ' }
             val outputNoteEntity = if (isNewNote) {
                 NoteEntity(titleText, detailText)
             } else {
@@ -59,8 +49,8 @@ class EditNoteFragment : Fragment() {
         inputNoteEntity = requireArguments()[KEY_NOTE_ENTITY] as NoteEntity?
         isNewNote = inputNoteEntity == null
         if (!isNewNote) {
-            binding!!.titleEditText.setText(inputNoteEntity!!.title)
-            binding!!.detailEditText.setText(inputNoteEntity!!.detail)
+            binding.titleEditText.setText(inputNoteEntity!!.title)
+            binding.detailEditText.setText(inputNoteEntity!!.detail)
         }
     }
 
